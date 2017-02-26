@@ -38,6 +38,7 @@ octomap::OcTree tree( 0.01 );
 pcl::PointCloud<pcl::PointXYZRGBA> pcl_cloud;
 ros::Publisher octomap_pub;
 ros::Publisher map_pub;
+unsigned int a =0,b=0; 
 
 void publishMapAsMarkers(octomap::OcTree& octree); 
 
@@ -105,11 +106,12 @@ static void pcl_callback(const sensor_msgs::PointCloud2& input)
 	tree.insertPointCloud(octo_cloud, pose);
 	tree.updateInnerOccupancy();
 	
-	octomap_msgs::Octomap octo_msg;
+/*	octomap_msgs::Octomap octo_msg;
 	octomap_msgs::binaryMapToMsg(tree, octo_msg);
 	octo_msg.header.frame_id = "/octomap";
-	octo_msg.header.stamp = ros::Time::now();	
-	octomap_pub.publish(octo_msg);
+	octo_msg.header.stamp = ros::Time::now();*/	
+//	octomap_pub.publish(octo_msg);
+	publishMapAsMarkers(tree);
 	
 }
 
@@ -119,20 +121,20 @@ int main(int argc, char **argv)
 
     ros::init(argc, argv, "orb_octomap");
     ros::NodeHandle nh;
-	ros::Subscriber receive = nh.subscribe("pclPoint_out", 100000, pcl_callback);
-    octomap_pub = nh.advertise<octomap_msgs::Octomap>("/octomap_out",100000); // here the number is the buffer
-	map_pub = nh.advertise<visualization_msgs::MarkerArray>("/map_vis", 1);
+	ros::Subscriber receive = nh.subscribe("/pclPoint_out", 10, pcl_callback);
+//     octomap_pub = nh.advertise<octomap_msgs::Octomap>("/octomap_out",100000); // here the number is the buffer
+	map_pub = nh.advertise<visualization_msgs::MarkerArray>("/map_vis", 10);
 	
-    ros::Rate loop_rate(50);
+//     ros::Rate loop_rate(50);
 	
-    while(ros::ok())
-    {
-		publishMapAsMarkers(tree);
-        ros::spinOnce();
-        loop_rate.sleep();
-    }
-//	ros::spin();
-	
+//     while(ros::ok())
+//     {
+// 		
+// 		
+//         ros::spinOnce();
+//         loop_rate.sleep();
+//     }
+	ros::spin();
 	tree.write("test.ot");
     return 0;
 }
@@ -155,8 +157,8 @@ void publishMapAsMarkers(octomap::OcTree& octree)
 			double x = it.getX();
 			double y = it.getY();
 			double z = it.getZ();
-			if (z > 0.1 && z < 2.0) 
-			{
+//			if (z > 0.1 && z < 2.0) 
+//			{
 				size_t depth = it.getDepth();
 				// Insert a point for the leaf's cube
 				geometry_msgs::Point leaf_origin;
@@ -166,7 +168,8 @@ void publishMapAsMarkers(octomap::OcTree& octree)
 				msg.markers[depth].points.push_back(leaf_origin);
 				// Determine and set the leaf's color by height
 				msg.markers[depth].colors.push_back(getColorByHeight(leaf_origin.z));
-			}
+//			}
+			a++;
 		}
 	}
   // Finish the marker array setup
@@ -186,7 +189,11 @@ void publishMapAsMarkers(octomap::OcTree& octree)
 		msg.markers[i].scale.z = size;
 		msg.markers[i].action = visualization_msgs::Marker::ADD;
 		msg.markers[i].color = color;
+		b++;
 	}
   // Publish the marker array
 	map_pub.publish(msg);
+	ROS_INFO("The size of msg:%d", a);
+	ROS_INFO("The size of tree:%d", b);
+	
 }

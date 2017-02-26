@@ -22,14 +22,9 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/point_cloud.h>
-#include <octomap/octomap.h>
-#include <octomap/ColorOcTree.h>
 #include "Converter.h"
 
-octomap::ColorOcTree octo_tree(0.01);
 pcl::PointCloud<pcl::PointXYZRGBA> pcl_cloud;
-
 
 PointCloudMapping::PointCloudMapping(double resolution_)
 {
@@ -132,6 +127,7 @@ void PointCloudMapping::viewer()
         voxel.setInputCloud( globalMap );
         voxel.filter( *tmp );
         globalMap->swap( *tmp );
+		
 		pcl_cloud = *globalMap;
 		globalMap = pcl_cloud.makeShared();
 		
@@ -139,6 +135,7 @@ void PointCloudMapping::viewer()
         cout<<"show global map, size="<<globalMap->points.size()<<endl;
         lastKeyframeSize = N;
     }
+
     globalMap->clear();
     for(size_t i=0;i<keyframes.size();i++)                               // save the optimized pointcloud
     {
@@ -150,27 +147,10 @@ void PointCloudMapping::viewer()
         *globalMap += *tmp;
         viewer.showCloud( globalMap );
     }
-    PointCloud::Ptr tmp(new PointCloud());			//主要优化离群的点云
+    PointCloud::Ptr tmp(new PointCloud());
     sor.setInputCloud(globalMap);
     sor.filter(*tmp);
-    globalMap->swap( *tmp ); 
-//	pcl_cloud = globalMap;
-	/*
-	for (auto p:globalMap->points)
-    {
-        // 将点云里的点插入到octomap中
-        octo_tree.updateNode( octomap::point3d(p.x, p.y, p.z), true );
-    }
-	for (auto p:globalMap->points)
-    {
-        // 将点云里的点插入到octomap中
-        octo_tree.integrateNodeColor( p.x, p.y, p.z, p.r, p.g, p.b );
-    }
-    
-    octo_tree.updateInnerOccupancy();
-    // 存储octomap, 注意要存成.ot文件而非.bt文件
-    octo_tree.write("test.ot");
-    */
+    globalMap->swap( *tmp );         
     pcl::io::savePCDFileBinary ( "optimized_pointcloud.pcd", *globalMap );
     cout<<"Save point cloud file successfully!"<<endl;
 }
@@ -179,8 +159,4 @@ void PointCloudMapping::public_cloud(pcl::PointCloud< pcl::PointXYZRGBA >& cloud
 {
 	cloud = pcl_cloud;
 }
-
-
-
-
 

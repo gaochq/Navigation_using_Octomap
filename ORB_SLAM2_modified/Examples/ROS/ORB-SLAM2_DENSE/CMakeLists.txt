@@ -105,3 +105,11 @@ ${LIBS}
 ${catkin_INCLUDE_DIRS}
 )
 # Node for visual_octomap
+rosbuild_add_executable(visual_octomap
+src/visual_octomap.cc
+)
+
+target_link_libraries(visual_octomap
+${LIBS}
+${catkin_INCLUDE_DIRS}
+)

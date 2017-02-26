@@ -117,10 +117,6 @@ add_executable(rgbd_cc
 Examples/RGB-D/rgbd_cc.cc)
 target_link_libraries(rgbd_cc ${PROJECT_NAME})
 
-add_executable(rgbd_xtion_cc
-Examples/RGB-D/rgbd_xtion_cc.cpp)
-target_link_libraries(rgbd_xtion_cc ${PROJECT_NAME})
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 
 add_executable(stereo_kitti
