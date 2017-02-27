@@ -36,9 +36,13 @@
 octomap::OcTree tree( 0.01 );
 
 pcl::PointCloud<pcl::PointXYZRGBA> pcl_cloud;
+typedef octomap::point3d point3d;
 ros::Publisher octomap_pub;
 ros::Publisher map_pub;
 unsigned int a =0,b=0; 
+
+tf::TransformListener *tf_listener; 
+point3d kinect_orig;
 
 void publishMapAsMarkers(octomap::OcTree& octree); 
 
@@ -99,11 +103,22 @@ static void pcl_callback(const sensor_msgs::PointCloud2& input)
 {
 // 	pcl::PointCloud<pcl::PointXYZI> tmp;
 // 	pcl::fromROSMsg(input, tmp);
-	
+	tf::StampedTransform transform;
 	octomap::Pointcloud octo_cloud;
 	octomap::pointCloud2ToOctomap(input, octo_cloud);
+	
+	try
+	{
+		tf_listener->lookupTransform("/map", "/orb_map", ros::Time(0), transform);
+		kinect_orig = point3d(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
+	}
+	catch (tf::TransformException &ex) 
+	{
+		ROS_ERROR("%s",ex.what());
+		ros::Duration(1.0).sleep();
+    }
 	octomap::point3d pose (0.01f, 0.01f, 0.02f);
-	tree.insertPointCloud(octo_cloud, pose);
+	tree.insertPointCloud(octo_cloud, kinect_orig);
 	tree.updateInnerOccupancy();
 	
 /*	octomap_msgs::Octomap octo_msg;
@@ -116,10 +131,10 @@ static void pcl_callback(const sensor_msgs::PointCloud2& input)
 }
 
 int main(int argc, char **argv)
-{
-	octomap::Pointcloud octo_cloud;
-
+{	
     ros::init(argc, argv, "orb_octomap");
+	octomap::Pointcloud octo_cloud;
+	tf_listener = new tf::TransformListener();
     ros::NodeHandle nh;
 	ros::Subscriber receive = nh.subscribe("/pclPoint_out", 10, pcl_callback);
 //     octomap_pub = nh.advertise<octomap_msgs::Octomap>("/octomap_out",100000); // here the number is the buffer
@@ -193,7 +208,7 @@ void publishMapAsMarkers(octomap::OcTree& octree)
 	}
   // Publish the marker array
 	map_pub.publish(msg);
-	ROS_INFO("The size of msg:%d", a);
-	ROS_INFO("The size of tree:%d", b);
+// 	ROS_INFO("The size of msg:%d", a);
+// 	ROS_INFO("The size of tree:%d", b);
 	
 }
