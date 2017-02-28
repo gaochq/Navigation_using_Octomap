@@ -109,7 +109,7 @@ static void pcl_callback(const sensor_msgs::PointCloud2& input)
 	
 	try
 	{
-		tf_listener->lookupTransform("/map", "/orb_map", ros::Time(0), transform);
+		tf_listener->lookupTransform("/camera_link", "/orb_map", ros::Time(0), transform);
 		kinect_orig = point3d(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
 	}
 	catch (tf::TransformException &ex) 
