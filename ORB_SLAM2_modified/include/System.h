@@ -116,7 +116,7 @@ public:
     void SaveTrajectoryKITTI(const string &filename);
 
 // 	void ReturnPcl(pcl::PointCloud<pcl::PointXYZRGBA> &pcl_cloud);
-	void ReturnPcl(pcl::PointCloud<pcl::PointXYZRGBA> &pcl_cloud, cv::Mat &Tcw);
+	void ReturnPcl(pcl::PointCloud<pcl::PointXYZRGBA> &pcl_cloud);
     // TODO: Save/Load functions
     // SaveMap(const string &filename);
     // LoadMap(const string &filename);

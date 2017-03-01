@@ -31,6 +31,7 @@
 #include <message_filters/sync_policies/approximate_time.h>
 
 #include<opencv2/core/core.hpp>
+#include <image_transport/image_transport.h>
 #include <System.h>
 
 #include <pcl_ros/transforms.h>
@@ -43,6 +44,7 @@ using namespace std;
 
 pcl::PointCloud<pcl::PointXYZRGBA> pcl_cloud;
 ros::Publisher pclPoint_pub;
+image_transport::Publisher CamPose_Pub;
 sensor_msgs::PointCloud2 pcl_point;
 cv::Mat Camerpose;
 
@@ -74,6 +76,7 @@ int main(int argc, char **argv)
     ImageGrabber igb(&SLAM);
 
     ros::NodeHandle nh;
+	image_transport::ImageTransport it(nh);  
 
     message_filters::Subscriber<sensor_msgs::Image> rgb_sub(nh, "/camera/rgb/image_raw", 1);
     message_filters::Subscriber<sensor_msgs::Image> depth_sub(nh, "camera/depth_registered/image_raw", 1);
@@ -81,6 +84,7 @@ int main(int argc, char **argv)
     message_filters::Synchronizer<sync_pol> sync(sync_pol(10), rgb_sub,depth_sub);
     sync.registerCallback(boost::bind(&ImageGrabber::GrabRGBD,&igb,_1,_2));
 	pclPoint_pub = nh.advertise<sensor_msgs::PointCloud2>("/pclPoint_out",10);
+	CamPose_Pub = it.advertise("/CamPose",1);
     ros::spin();
 	
 	
@@ -120,10 +124,28 @@ void ImageGrabber::GrabRGBD(const sensor_msgs::ImageConstPtr& msgRGB,const senso
         return;
     }
 
-    mpSLAM->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
-	mpSLAM->ReturnPcl(pcl_cloud,Camerpose);
+    Camerpose = mpSLAM->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
+	
+	mpSLAM->ReturnPcl(pcl_cloud);
 	pcl::toROSMsg(pcl_cloud, pcl_point);
+	
+	//利用cvbridge将Mat转为sensor_sensor_msgs
+	sensor_msgs::ImagePtr Cam_msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", Camerpose).toImageMsg();
 	pclPoint_pub.publish(pcl_point);	
+	CamPose_Pub.publish(Cam_msg);
+	
 }
+
+// void Pub_CamPose(cv::Mat &pose)
+// {
+// 	cv::Mat Rwc(3,3,CV_32F);
+// 	cv::Mat twc(3,1,CV_32F);
+// 	
+// 	Rwc = pose.rowRange(0,3).colRange(0,3).t();
+// 	twc = -Rwc*pose.rowRange(0,3).col(3);
+// 	
+// 	
+// }
+
 
 

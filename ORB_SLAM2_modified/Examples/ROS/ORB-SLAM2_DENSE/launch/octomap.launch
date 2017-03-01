@@ -1,4 +1,4 @@
 <launch>  
-<node pkg="tf" type="static_transform_publisher" name="world_orb" args="0 0 0.5 0 0 0 /camera_link /orb_map 100" />  
-#<node pkg="tf" type="static_transform_publisher" name="world_map" args="0 0 0.5 -1.57 0 -1.57 world /map 100" /> 
+<node pkg="tf" type="static_transform_publisher" name="map" args="0 0 0.5 0 0 0 /map /orb_map 100" />  
+
 </launch> 

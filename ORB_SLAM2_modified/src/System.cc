@@ -431,12 +431,12 @@ void System::SaveTrajectoryKITTI(const string &filename)
 // {
 // 	mpPointCloudMapping->public_cloud(pcl_cloud);
 // }
-void System::ReturnPcl(pcl::PointCloud< pcl::PointXYZRGBA >& pcl_cloud, cv::Mat& Tcw)
+void System::ReturnPcl(pcl::PointCloud< pcl::PointXYZRGBA > &pcl_cloud)
 {
 	cv::Mat Camerpose;
 	mpPointCloudMapping->public_cloud(pcl_cloud);
-	mpMapDrawer->returnCampose(Camerpose);
-	Tcw = Camerpose.clone();
+// 	mpMapDrawer->returnCampose(Camerpose);
+// 	Tcw = Camerpose.clone();
 }
 
 
