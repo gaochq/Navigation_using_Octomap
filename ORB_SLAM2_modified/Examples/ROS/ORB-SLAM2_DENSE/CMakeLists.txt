@@ -104,12 +104,17 @@ target_link_libraries(orb_octomap
 ${LIBS}
 ${catkin_INCLUDE_DIRS}
 )
+
+target_link_libraries(orb_octomap
+${LIBS}
+${catkin_INCLUDE_DIRS}
+)
 # Node for visual_octomap
-rosbuild_add_executable(visual_octomap
-src/visual_octomap.cc
+rosbuild_add_executable(Pose_transform
+src/Pose_transform.cc
 )
 
-target_link_libraries(visual_octomap
+target_link_libraries(Pose_transform
 ${LIBS}
 ${catkin_INCLUDE_DIRS}
 )

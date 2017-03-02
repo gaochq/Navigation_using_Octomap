@@ -1,0 +1,4 @@
+[Project]
+Name=orb_slam2_dense
+Manager=KDevCMakeManager
+VersionControl=
