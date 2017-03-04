@@ -141,4 +141,3 @@ void ImageGrabber::GrabRGBD(const sensor_msgs::ImageConstPtr& msgRGB,const senso
 	Pose_pub.publish(msg);
 }
 
-
