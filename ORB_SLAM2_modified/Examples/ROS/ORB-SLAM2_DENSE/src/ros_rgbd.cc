@@ -91,10 +91,24 @@ int main(int argc, char **argv)
     typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image> sync_pol;
     message_filters::Synchronizer<sync_pol> sync(sync_pol(10), rgb_sub,depth_sub);
     sync.registerCallback(boost::bind(&ImageGrabber::GrabRGBD,&igb,_1,_2));
-	pclPoint_pub = nh.advertise<sensor_msgs::PointCloud2>("/pclPoint_out",10);
-	Pose_pub = it.advertise("camera/Tcw", 1);;
+	pclPoint_pub = nh.advertise<sensor_msgs::PointCloud2>("/pclPoint_out",100000);
+	Pose_pub = it.advertise("camera/Tcw", 1);
+	ros::Rate loop_rate(100);
 	
-    ros::spin();
+    while(ros::ok())
+    {		
+		pcl::toROSMsg(pcl_cloud, pcl_point);
+		sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "32FC1", Camerpose).toImageMsg();
+		//利用cvbridge将Mat转为sensor_sensor_msgs
+		pcl_point.header.frame_id = "/map";
+		pclPoint_pub.publish(pcl_point);	
+		Pose_pub.publish(msg);
+
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+	
+//    ros::spin();
     // Stop all threads
     SLAM.Shutdown();
 
@@ -132,12 +146,6 @@ void ImageGrabber::GrabRGBD(const sensor_msgs::ImageConstPtr& msgRGB,const senso
     }
 
     Camerpose = mpSLAM->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
-	
 	mpSLAM->ReturnPcl(pcl_cloud);
-	pcl::toROSMsg(pcl_cloud, pcl_point);
-	sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "32FC1", Camerpose).toImageMsg();
-	//利用cvbridge将Mat转为sensor_sensor_msgs
-	pclPoint_pub.publish(pcl_point);	
-	Pose_pub.publish(msg);
-}
 
+}

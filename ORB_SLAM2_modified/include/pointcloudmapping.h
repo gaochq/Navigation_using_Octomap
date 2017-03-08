@@ -26,6 +26,7 @@
 #include <pcl/point_types.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/passthrough.h>
 #include <octomap/octomap.h>
 #include <octomap/ColorOcTree.h>
 #include <condition_variable>
@@ -49,6 +50,7 @@ public:
     void shutdown();
     void viewer();
 	void public_cloud(pcl::PointCloud<pcl::PointXYZRGBA> &cloud);
+	void Cloud_transform(PointCloud::Ptr &source, PointCloud::Ptr &out);
     
 protected:
     PointCloud::Ptr generatePointCloud(KeyFrame* kf, cv::Mat& color, cv::Mat& depth);
@@ -72,6 +74,7 @@ protected:
     double resolution = 0.01;
     pcl::VoxelGrid<PointT>  voxel;
     pcl::StatisticalOutlierRemoval<PointT> sor;// 创建滤波器对象
+    pcl::PassThrough<PointT> pass;
 /*
 public:
 	octomap::ColorOcTree octo_tree(0.01);

@@ -87,10 +87,10 @@ void Pub_CamPose(cv::Mat &pose)
 		
 		orb_slam.setOrigin(tf::Vector3(Pose_trans[2], -Pose_trans[0], -Pose_trans[1]));
 		orb_slam.setRotation(tf::Quaternion(Q.z(), -Q.x(), -Q.y(), Q.w()));
-		orb_slam_broadcaster->sendTransform(tf::StampedTransform(orb_slam, ros::Time::now(), "world", "base_link"));
+		orb_slam_broadcaster->sendTransform(tf::StampedTransform(orb_slam, ros::Time::now(), "/map", "/base_footprint"));
 		
 		Cam_Pose.header.stamp = ros::Time::now();
-		Cam_Pose.header.frame_id = "orb_slam";
+		Cam_Pose.header.frame_id = "/camera_rgb_frame";
 		tf::pointTFToMsg(orb_slam.getOrigin(), Cam_Pose.pose.position);
 		tf::quaternionTFToMsg(orb_slam.getRotation(), Cam_Pose.pose.orientation);
 		CamPose_Pub.publish(Cam_Pose);

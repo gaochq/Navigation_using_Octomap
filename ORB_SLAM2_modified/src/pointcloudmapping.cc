@@ -21,10 +21,17 @@
 #include <KeyFrame.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <pcl/visualization/cloud_viewer.h>
+#include <pcl/filters/passthrough.h>
+#include <pcl/common/transforms.h>
 #include <pcl/io/pcd_io.h>
 #include "Converter.h"
+#include "Eigen/Dense" 
+#include "Eigen/Geometry"
+
 
 pcl::PointCloud<pcl::PointXYZRGBA> pcl_cloud;
+
+
 
 PointCloudMapping::PointCloudMapping(double resolution_)
 {
@@ -37,6 +44,7 @@ PointCloudMapping::PointCloudMapping(double resolution_)
     globalMap = boost::make_shared< PointCloud >( );
     
     viewerThread = make_shared<thread>( bind(&PointCloudMapping::viewer, this ) );
+	
 }
 
 void PointCloudMapping::shutdown()
@@ -79,8 +87,7 @@ pcl::PointCloud< PointCloudMapping::PointT >::Ptr PointCloudMapping::generatePoi
             p.b = color.ptr<uchar>(m)[n*3];
             p.g = color.ptr<uchar>(m)[n*3+1];
             p.r = color.ptr<uchar>(m)[n*3+2];
-                
-            tmp->points.push_back(p);
+			tmp->points.push_back(p);
         }
     }
     
@@ -128,10 +135,13 @@ void PointCloudMapping::viewer()
         voxel.filter( *tmp );
         globalMap->swap( *tmp );
 		
-		pcl_cloud = *globalMap;
-		globalMap = pcl_cloud.makeShared();
+		PointCloud::Ptr Trans(new PointCloud());
+		Cloud_transform(globalMap, Trans);
 		
-        viewer.showCloud( globalMap );                                        // show the pointcloud without optimization
+		pcl_cloud = *Trans;
+		Trans = pcl_cloud.makeShared();
+		
+        viewer.showCloud( Trans );                                        // show the pointcloud without optimization
         cout<<"show global map, size="<<globalMap->points.size()<<endl;
         lastKeyframeSize = N;
     }
@@ -157,6 +167,32 @@ void PointCloudMapping::viewer()
 
 void PointCloudMapping::public_cloud(pcl::PointCloud< pcl::PointXYZRGBA >& cloud)
 {
-	cloud = pcl_cloud;
+	pcl::PointCloud<pcl::PointXYZRGBA> pcl_cloud_trans;
+	cloud = pcl_cloud_trans;
 }
 
+void PointCloudMapping::Cloud_transform(pcl::PointCloud< PointCloudMapping::PointT >::Ptr& source, pcl::PointCloud< PointCloudMapping::PointT >::Ptr& out)
+{
+	Eigen::Affine3f transform = Eigen::Affine3f::Identity();
+	PointCloud::Ptr cloud_filtered(new PointCloud());
+	transform.translation() << 0.0, 0.0, 0.5;
+	transform.rotate (Eigen::AngleAxisf (1.5*M_PI, Eigen::Vector3f::UnitX()));
+	pcl::transformPointCloud (*source, *cloud_filtered, transform);
+	
+	//直通滤波器
+	pass.setInputCloud (cloud_filtered);            //设置输入点云
+	pass.setFilterFieldName ("z");         	   //设置过滤时所需要点云类型的Z字段
+	pass.setFilterLimits (-1.5, 1.0);
+	pass.filter (*out); 
+}
+/*
+	Eigen::Matrix4f transform_1 = Eigen::Matrix4f::Identity();
+	Eigen::Vector3d T(0, 0, 0.35);
+	Matrix3f m;
+	m = AngleAxisf(angle1, Vector3f::UnitZ())
+	  * AngleAxisf(angle2, Vector3f::UnitY())
+	  * AngleAxisf(angle3, Vector3f::UnitZ());
+	transform_1.block<3,3>(0,0) = m;
+	
+
+*/

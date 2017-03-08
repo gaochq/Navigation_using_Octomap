@@ -109,7 +109,7 @@ static void pcl_callback(const sensor_msgs::PointCloud2& input)
 	
 // 	try
 // 	{
-// 		tf_listener->lookupTransform("/camera_link", "/camera_rgb_optical_frame", ros::Time(0), transform);
+// 		tf_listener->lookupTransform("/map", "/orb_map", ros::Time(0), transform);
 // 		kinect_orig = point3d(transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z());
 // 	}
 // 	catch (tf::TransformException &ex) 
@@ -195,7 +195,7 @@ void publishMapAsMarkers(octomap::OcTree& octree)
 	{
 		double size = octree.getNodeSize(i);
 
-		msg.markers[i].header.frame_id = "/orb_slam";
+		msg.markers[i].header.frame_id = "/map";
 		msg.markers[i].header.stamp = ros::Time::now();
 		msg.markers[i].ns = "map";
 		msg.markers[i].id = i;
