@@ -44,6 +44,7 @@
 using namespace std;
 
 pcl::PointCloud<pcl::PointXYZRGBA> pcl_cloud;
+pcl::PointCloud<pcl::PointXYZRGBA> pcl_filter;
 ros::Publisher pclPoint_pub;
 image_transport::Publisher Pose_pub;
 sensor_msgs::PointCloud2 pcl_point;
@@ -53,8 +54,10 @@ std::vector<float> Pose_quat(4);
 std::vector<float> Pose_trans(3);
 tf::TransformBroadcaster * orb_slam_broadcaster;
 geometry_msgs::PoseStamped Cam_Pose;
+pcl::PassThrough<pcl::PointXYZRGBA> pass;
 
 void Pub_CamPose(cv::Mat &pose);
+void Cloud_transform(pcl::PointCloud<pcl::PointXYZRGBA>& source, pcl::PointCloud<pcl::PointXYZRGBA>& out);
 
 class ImageGrabber
 {
@@ -96,8 +99,9 @@ int main(int argc, char **argv)
 	ros::Rate loop_rate(100);
 	
     while(ros::ok())
-    {		
-		pcl::toROSMsg(pcl_cloud, pcl_point);
+    {	
+		Cloud_transform(pcl_cloud,pcl_filter);
+		pcl::toROSMsg(pcl_filter, pcl_point);
 		sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "32FC1", Camerpose).toImageMsg();
 		//利用cvbridge将Mat转为sensor_sensor_msgs
 		pcl_point.header.frame_id = "/map";
@@ -148,4 +152,19 @@ void ImageGrabber::GrabRGBD(const sensor_msgs::ImageConstPtr& msgRGB,const senso
     Camerpose = mpSLAM->TrackRGBD(cv_ptrRGB->image,cv_ptrD->image,cv_ptrRGB->header.stamp.toSec());
 	mpSLAM->ReturnPcl(pcl_cloud);
 
+}
+
+void Cloud_transform(pcl::PointCloud<pcl::PointXYZRGBA>& source, pcl::PointCloud<pcl::PointXYZRGBA>& out)
+{
+	pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_filtered;
+	Eigen::Affine3f transform = Eigen::Affine3f::Identity();
+	transform.translation() << 0.0, 0.0, 0.35;
+	transform.rotate (Eigen::AngleAxisf (1.5*M_PI, Eigen::Vector3f::UnitX()));
+	pcl::transformPointCloud (source, out, transform);
+	
+	//直通滤波器
+// 	pass.setInputCloud (cloud_filtered);            //设置输入点云
+// 	pass.setFilterFieldName ("z");         	   //设置过滤时所需要点云类型的Z字段
+// 	pass.setFilterLimits (-1.0, 1.0);
+// 	pass.filter (out); 
 }

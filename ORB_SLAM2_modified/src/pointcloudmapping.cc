@@ -135,13 +135,13 @@ void PointCloudMapping::viewer()
         voxel.filter( *tmp );
         globalMap->swap( *tmp );
 		
-		PointCloud::Ptr Trans(new PointCloud());
-		Cloud_transform(globalMap, Trans);
+//		PointCloud::Ptr Trans(new PointCloud());
+//		Cloud_transform(globalMap, Trans);
 		
-		pcl_cloud = *Trans;
-		Trans = pcl_cloud.makeShared();
+		pcl_cloud = *globalMap;
+		globalMap = pcl_cloud.makeShared();
 		
-        viewer.showCloud( Trans );                                        // show the pointcloud without optimization
+        viewer.showCloud( globalMap );                                        // show the pointcloud without optimization
         cout<<"show global map, size="<<globalMap->points.size()<<endl;
         lastKeyframeSize = N;
     }
@@ -175,14 +175,14 @@ void PointCloudMapping::Cloud_transform(pcl::PointCloud< PointCloudMapping::Poin
 {
 	Eigen::Affine3f transform = Eigen::Affine3f::Identity();
 	PointCloud::Ptr cloud_filtered(new PointCloud());
-	transform.translation() << 0.0, 0.0, 0.5;
+	transform.translation() << 0.0, 0.0, 0.35;
 	transform.rotate (Eigen::AngleAxisf (1.5*M_PI, Eigen::Vector3f::UnitX()));
 	pcl::transformPointCloud (*source, *cloud_filtered, transform);
 	
 	//直通滤波器
 	pass.setInputCloud (cloud_filtered);            //设置输入点云
 	pass.setFilterFieldName ("z");         	   //设置过滤时所需要点云类型的Z字段
-	pass.setFilterLimits (-1.5, 1.0);
+	pass.setFilterLimits (-1.0, 1.0);
 	pass.filter (*out); 
 }
 /*

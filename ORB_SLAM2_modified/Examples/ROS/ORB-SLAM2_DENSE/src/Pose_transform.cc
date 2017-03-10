@@ -15,6 +15,7 @@
 #include"../ORB_SLAM2_modified/include/System.h"
 #include"../ORB_SLAM2_modified/include/pointcloudmapping.h"
 #include <tf/transform_broadcaster.h>
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 
 tf::Transform orb_slam;
@@ -23,7 +24,9 @@ std::vector<float> Pose_trans(3);
 tf::TransformBroadcaster * orb_slam_broadcaster;
 geometry_msgs::PoseStamped Cam_Pose;
 ros::Publisher CamPose_Pub;
+ros::Publisher Camodom_Pub;
 cv::Mat Camera_Pose;
+geometry_msgs::PoseWithCovarianceStamped Cam_odom;
 
 void Pub_CamPose(cv::Mat &pose);
 
@@ -46,6 +49,7 @@ int main(int argc, char **argv)
 	image_transport::ImageTransport it(nh);
 	image_transport::Subscriber sub = it.subscribe("/camera/Tcw", 1, imageCallback);
 	CamPose_Pub = nh.advertise<geometry_msgs::PoseStamped>("/Camera_Pose",1);
+	Camodom_Pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/Camera_odom", 1);
     ros::Rate loop_rate(50);
 	
     while(ros::ok())
@@ -93,6 +97,25 @@ void Pub_CamPose(cv::Mat &pose)
 		Cam_Pose.header.frame_id = "/camera_rgb_frame";
 		tf::pointTFToMsg(orb_slam.getOrigin(), Cam_Pose.pose.position);
 		tf::quaternionTFToMsg(orb_slam.getRotation(), Cam_Pose.pose.orientation);
+		
+		Cam_odom.header.stamp = ros::Time::now();
+		Cam_odom.header.frame_id = "/camera_rgb_frame";
+		tf::pointTFToMsg(orb_slam.getOrigin(), Cam_odom.pose.pose.position);
+		tf::quaternionTFToMsg(orb_slam.getRotation(), Cam_odom.pose.pose.orientation);
+		Cam_odom.pose.covariance = {0.01, 0, 0, 0, 0, 0,
+									0, 0.01, 0, 0, 0, 0,
+									0, 0, 0.01, 0, 0, 0,
+									0, 0, 0, 0.01, 0, 0,
+									0, 0, 0, 0, 0.01, 0,
+									0, 0, 0, 0, 0, 0.01};
+		
 		CamPose_Pub.publish(Cam_Pose);
+		Camodom_Pub.publish(Cam_odom);
 	}
 }
+
+
+
+
+
+
