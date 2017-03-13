@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 	image_transport::Subscriber sub = it.subscribe("/camera/Tcw", 1, imageCallback);
 	CamPose_Pub = nh.advertise<geometry_msgs::PoseStamped>("/Camera_Pose",1);
 	Camodom_Pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/Camera_odom", 1);
-    ros::Rate loop_rate(50);
+    ros::Rate loop_rate(100);
 	
     while(ros::ok())
     {
@@ -91,7 +91,7 @@ void Pub_CamPose(cv::Mat &pose)
 		
 		orb_slam.setOrigin(tf::Vector3(Pose_trans[2], -Pose_trans[0], -Pose_trans[1]));
 		orb_slam.setRotation(tf::Quaternion(Q.z(), -Q.x(), -Q.y(), Q.w()));
-		orb_slam_broadcaster->sendTransform(tf::StampedTransform(orb_slam, ros::Time::now(), "/map", "/base_footprint"));
+		orb_slam_broadcaster->sendTransform(tf::StampedTransform(orb_slam, ros::Time::now(), "/map", "/odom"));
 		
 		Cam_Pose.header.stamp = ros::Time::now();
 		Cam_Pose.header.frame_id = "/camera_rgb_frame";
