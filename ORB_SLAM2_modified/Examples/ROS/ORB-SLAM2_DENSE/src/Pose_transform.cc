@@ -72,6 +72,8 @@ void Pub_CamPose(cv::Mat &pose)
 	if(pose.dims<2)
 	{
 		 ROS_INFO("Waiting fot data");
+		 Rwc = Rwc;
+		 twc = twc;
 	}
 	else
 	{
@@ -82,6 +84,8 @@ void Pub_CamPose(cv::Mat &pose)
 					Rwc.at<float>(1,0), Rwc.at<float>(1,1), Rwc.at<float>(1,2),
 					Rwc.at<float>(2,0), Rwc.at<float>(2,1), Rwc.at<float>(2,2);
 		Eigen::Quaterniond Q(rotationMat);
+//		Eigen::Quaterniond Q_Modify(1.4142, 0, 1.4142, 0);
+//		Q = Q*Q_Modify.inverse();
 		Pose_quat[0] = Q.x(); Pose_quat[1] = Q.y();
 		Pose_quat[2] = Q.z(); Pose_quat[3] = Q.w();
 		
@@ -89,7 +93,7 @@ void Pub_CamPose(cv::Mat &pose)
 		Pose_trans[1] = twc.at<float>(1);
 		Pose_trans[2] = twc.at<float>(2);
 		
-		orb_slam.setOrigin(tf::Vector3(Pose_trans[2], -Pose_trans[0], -Pose_trans[1]));
+		orb_slam.setOrigin(tf::Vector3(Pose_trans[0], Pose_trans[2], -Pose_trans[1]));
 		orb_slam.setRotation(tf::Quaternion(Q.z(), -Q.x(), -Q.y(), Q.w()));
 		orb_slam_broadcaster->sendTransform(tf::StampedTransform(orb_slam, ros::Time::now(), "/map", "/odom"));
 		
