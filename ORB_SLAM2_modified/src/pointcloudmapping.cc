@@ -72,6 +72,7 @@ pcl::PointCloud< PointCloudMapping::PointT >::Ptr PointCloudMapping::generatePoi
 {
     PointCloud::Ptr tmp( new PointCloud() );
     // point cloud is null ptr
+    // 根据投影模型计算3D点坐标
     for ( int m=0; m<depth.rows; m+=3 )
     {
         for ( int n=0; n<depth.cols; n+=3 )
