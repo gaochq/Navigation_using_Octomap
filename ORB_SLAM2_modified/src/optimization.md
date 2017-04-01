@@ -1,4 +1,5 @@
- 　　ORB-SLAM2的后段共有5个优化器，在前端的tracking、mapping和闭环检测部分都有用到，下面对5个优化器做具体的解析：   
+ 　<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>    
+  ORB-SLAM2的后段共有5个优化器，在前端的tracking、mapping和闭环检测部分都有用到，下面对5个优化器做具体的解析：   
  \---**<font size=4>GlobalBundleAdjustemnt**    
  　　全局的BA优化。在5个优化器中最简单。    
 误差项：
@@ -127,6 +128,5 @@ _estimate += v;
 3）根据inliners的个数，在进行特定次数的优化。     
 4）在剔除依次outliners(这次剔除有什么作用么？)     
 5）进行优化变量更新。     
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>    
 $$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$     
 \\(x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}\\)
