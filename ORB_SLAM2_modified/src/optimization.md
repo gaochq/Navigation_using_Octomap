@@ -126,4 +126,5 @@ _estimate += v;
 2）按照边的顺序，剔除outliners，留取inliners。    
 3）根据inliners的个数，在进行特定次数的优化。     
 4）在剔除依次outliners(这次剔除有什么作用么？)     
-5）进行优化变量更新。
+5）进行优化变量更新。     
+<img src="http://chart.googleapis.com/chart?cht=tx&chl=\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" style="border:none;">
