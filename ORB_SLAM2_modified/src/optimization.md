@@ -2,7 +2,9 @@
  \---**<font size=4>GlobalBundleAdjustemnt**    
  　　全局的BA优化。在5个优化器中最简单。    
 误差项：
-\[e_{i,j}=x_{i,j}-\pi _{i}(T_{iw},X_{w,j})\]
+$$
+e_{i,j}=x_{i,j}-\pi _{i}(T_{iw},X_{w,j})
+$$
 其中
 \[\pi _{i}(T_{iw},X_{w,j})=\begin{bmatrix} f_{i,u}\frac{x_{i,j}}{zi,j}+c_{i,u} \\ f_{i,v}\frac{y_{i,j}}{zi,j}+c_{i,v} \end{bmatrix}\]
 \[\begin{bmatrix} x_{i,j} & y_{i,j} & z_{i,j} \end{bmatrix}=R_{iw}X_{w,j}+t_{iw}\]
