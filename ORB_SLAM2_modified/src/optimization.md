@@ -127,6 +127,6 @@ _estimate += v;
 3）根据inliners的个数，在进行特定次数的优化。     
 4）在剔除依次outliners(这次剔除有什么作用么？)     
 5）进行优化变量更新。     
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>
-$$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>    
+$$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$     
 \\(x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}\\)
